@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GitTree Explorer - Dark Mode</title>
+    <title>GitTree Explorer </title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -27,7 +27,7 @@
             height: 8px;
         }
         pre::-webkit-scrollbar-track {
-            background: #0b0f19; 
+            background: rgba(11, 15, 25, 0.8); 
             border-radius: 4px;
         }
         pre::-webkit-scrollbar-thumb {
@@ -39,13 +39,24 @@
         }
     </style>
 </head>
-<body class="bg-slate-900 text-slate-200 font-sans min-h-screen">
+<body class="bg-slate-950 text-slate-200 font-sans min-h-screen relative overflow-x-hidden">
 
-    <!-- Navbar / Header -->
-    <div class="max-w-4xl mx-auto p-4 md:p-8 space-y-8">
+    <!-- Space Background Animation -->
+    <canvas id="spaceBackground" class="fixed inset-0 z-0 pointer-events-none opacity-60"></canvas>
+
+    <!-- Main Content Wrapper (z-10 ensures it stays above the space background) -->
+    <div class="relative z-10 max-w-4xl mx-auto p-4 md:p-8 space-y-8">
+        
+        <!-- Navbar / Header -->
         <header class="relative flex flex-col items-center justify-center space-y-3 mb-4">
+            
+            <!-- Documentation Link -->
+            <a href="doc.html" class="absolute right-12 top-0 p-2 text-slate-400 hover:text-white hover:bg-slate-800/80 rounded-lg transition-colors backdrop-blur-sm" title="Documentation">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+            </a>
+
             <!-- Settings Button -->
-            <button id="settingsBtn" class="absolute right-0 top-0 p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors" title="Settings (API Token)">
+            <button id="settingsBtn" class="absolute right-0 top-0 p-2 text-slate-400 hover:text-white hover:bg-slate-800/80 rounded-lg transition-colors backdrop-blur-sm" title="Settings (API Token)">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>
             </button>
 
@@ -59,7 +70,7 @@
         </header>
 
         <!-- Input Section -->
-        <div class="bg-slate-800 p-6 rounded-2xl shadow-lg border border-slate-700">
+        <div class="bg-slate-800/80 backdrop-blur-md p-6 rounded-2xl shadow-lg border border-slate-700">
             <div class="flex flex-col sm:flex-row gap-3">
                 <div class="relative flex-grow">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
@@ -68,7 +79,7 @@
                     <input
                         type="text"
                         id="repoInput"
-                        class="block w-full pl-10 pr-3 py-3 border border-slate-600 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors sm:text-sm bg-slate-900 text-white placeholder-slate-500"
+                        class="block w-full pl-10 pr-3 py-3 border border-slate-600 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors sm:text-sm bg-slate-900/80 text-white placeholder-slate-500 backdrop-blur-sm"
                         placeholder="e.g., facebook/react or https://github.com/..."
                     />
                 </div>
@@ -82,19 +93,19 @@
             </div>
 
             <!-- Feedback Messages -->
-            <div id="errorBox" class="mt-4 p-4 rounded-xl bg-red-900/30 text-red-400 hidden flex items-start text-sm border border-red-800/50">
+            <div id="errorBox" class="mt-4 p-4 rounded-xl bg-red-900/40 text-red-400 hidden flex items-start text-sm border border-red-800/60 backdrop-blur-sm">
                 <svg class="shrink-0 mr-2 mt-0.5" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
                 <p id="errorText"></p>
             </div>
             
-            <div id="warningBox" class="mt-4 p-4 rounded-xl bg-amber-900/30 text-amber-400 hidden flex items-start text-sm border border-amber-800/50">
+            <div id="warningBox" class="mt-4 p-4 rounded-xl bg-amber-900/40 text-amber-400 hidden flex items-start text-sm border border-amber-800/60 backdrop-blur-sm">
                 <svg class="shrink-0 mr-2 mt-0.5" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
                 <p id="warningText"></p>
             </div>
         </div>
 
         <!-- Results Section -->
-        <div id="outputSection" class="bg-slate-800 rounded-2xl shadow-lg border border-slate-700 overflow-hidden hidden flex-col">
+        <div id="outputSection" class="bg-slate-800/90 backdrop-blur-md rounded-2xl shadow-lg border border-slate-700 overflow-hidden hidden flex-col">
             <!-- Toolbar -->
             <div class="bg-slate-850 border-b border-slate-700 px-4 py-3 flex flex-col sm:flex-row items-center justify-between gap-3">
                 <div class="text-sm font-medium text-slate-300 flex items-center">
@@ -120,14 +131,14 @@
             </div>
 
             <!-- Tree Output Area -->
-            <div class="p-4 md:p-6 bg-slate-950 overflow-x-auto">
+            <div class="p-4 md:p-6 bg-slate-950/80 overflow-x-auto backdrop-blur-lg">
                 <pre id="treeOutput" class="text-sm font-mono text-slate-300 whitespace-pre leading-relaxed min-h-[200px]"></pre>
             </div>
         </div>
     </div>
 
     <!-- Settings Modal -->
-    <div id="settingsModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+    <div id="settingsModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
         <div class="bg-slate-800 border border-slate-700 rounded-2xl shadow-2xl max-w-md w-full overflow-hidden flex flex-col">
             <div class="px-6 py-4 border-b border-slate-700 flex justify-between items-center bg-slate-850">
                 <h2 class="text-lg font-semibold text-white flex items-center">
@@ -159,9 +170,66 @@
         </div>
     </div>
 
-    <!-- Application Logic -->
+    <!-- Application & Space Logic -->
     <script>
-        // State
+        // === Space Background Animation ===
+        const spaceCanvas = document.getElementById('spaceBackground');
+        const ctx = spaceCanvas.getContext('2d');
+        let width, height;
+        let stars = [];
+
+        function initSpace() {
+            width = spaceCanvas.width = window.innerWidth;
+            height = spaceCanvas.height = window.innerHeight;
+            stars = [];
+            
+            // Create stars
+            for (let i = 0; i < 200; i++) {
+                stars.push({
+                    x: Math.random() * width,
+                    y: Math.random() * height,
+                    radius: Math.random() * 1.5,
+                    opacity: Math.random(),
+                    speedY: Math.random() * 0.3 + 0.1, // Slow upward/downward drift
+                    speedX: (Math.random() - 0.5) * 0.1
+                });
+            }
+        }
+
+        function animateSpace() {
+            ctx.clearRect(0, 0, width, height);
+            
+            stars.forEach(star => {
+                ctx.fillStyle = `rgba(255, 255, 255, ${star.opacity})`;
+                ctx.beginPath();
+                ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Move stars slowly upwards and sideways
+                star.y -= star.speedY;
+                star.x += star.speedX;
+
+                // Subtle twinkling effect
+                star.opacity += (Math.random() - 0.5) * 0.05;
+                if (star.opacity < 0.1) star.opacity = 0.1;
+                if (star.opacity > 0.8) star.opacity = 0.8;
+
+                // Wrap around edges
+                if (star.y < 0) star.y = height;
+                if (star.y > height) star.y = 0;
+                if (star.x < 0) star.x = width;
+                if (star.x > width) star.x = 0;
+            });
+
+            requestAnimationFrame(animateSpace);
+        }
+
+        window.addEventListener('resize', initSpace);
+        initSpace();
+        animateSpace();
+
+        // === Main App Logic ===
+        
         let currentTreeString = '';
         let currentTreeJson = null;
         let currentRepoInfo = null;
