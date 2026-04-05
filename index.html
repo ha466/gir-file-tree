@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitTree Explorer - Dark Mode</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        slate: {
+                            850: '#151e2e',
+                            950: '#0b0f19',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom scrollbar for the pre element */
+        pre::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        pre::-webkit-scrollbar-track {
+            background: #0b0f19; 
+            border-radius: 4px;
+        }
+        pre::-webkit-scrollbar-thumb {
+            background: #334155; 
+            border-radius: 4px;
+        }
+        pre::-webkit-scrollbar-thumb:hover {
+            background: #475569; 
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-200 font-sans min-h-screen">
+
+    <!-- Navbar / Header -->
+    <div class="max-w-4xl mx-auto p-4 md:p-8 space-y-8">
+        <header class="relative flex flex-col items-center justify-center space-y-3 mb-4">
+            <!-- Settings Button -->
+            <button id="settingsBtn" class="absolute right-0 top-0 p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors" title="Settings (API Token)">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+            </button>
+
+            <div class="flex items-center space-x-3 text-indigo-400">
+                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"></path><path d="M9 18c-4.51 2-5-2-7-2"></path></svg>
+                <h1 class="text-3xl font-bold tracking-tight text-white">GitTree Explorer</h1>
+            </div>
+            <p class="text-slate-400 max-w-lg mx-auto text-center">
+                Generate, copy, and download the directory structure of any public GitHub repository instantly.
+            </p>
+        </header>
+
+        <!-- Input Section -->
+        <div class="bg-slate-800 p-6 rounded-2xl shadow-lg border border-slate-700">
+            <div class="flex flex-col sm:flex-row gap-3">
+                <div class="relative flex-grow">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"></path><path d="M9 18c-4.51 2-5-2-7-2"></path></svg>
+                    </div>
+                    <input
+                        type="text"
+                        id="repoInput"
+                        class="block w-full pl-10 pr-3 py-3 border border-slate-600 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors sm:text-sm bg-slate-900 text-white placeholder-slate-500"
+                        placeholder="e.g., facebook/react or https://github.com/..."
+                    />
+                </div>
+                <button
+                    id="generateBtn"
+                    class="flex items-center justify-center px-6 py-3 border border-transparent text-sm font-medium rounded-xl text-white bg-indigo-600 hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md"
+                >
+                    <svg id="loaderIcon" class="animate-spin -ml-1 mr-2 hidden" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="2" x2="12" y2="6"></line><line x1="12" y1="18" x2="12" y2="22"></line><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"></line><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"></line><line x1="2" y1="12" x2="6" y2="12"></line><line x1="18" y1="12" x2="22" y2="12"></line><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"></line><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"></line></svg>
+                    <span id="btnText">Generate Tree</span>
+                </button>
+            </div>
+
+            <!-- Feedback Messages -->
+            <div id="errorBox" class="mt-4 p-4 rounded-xl bg-red-900/30 text-red-400 hidden flex items-start text-sm border border-red-800/50">
+                <svg class="shrink-0 mr-2 mt-0.5" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                <p id="errorText"></p>
+            </div>
+            
+            <div id="warningBox" class="mt-4 p-4 rounded-xl bg-amber-900/30 text-amber-400 hidden flex items-start text-sm border border-amber-800/50">
+                <svg class="shrink-0 mr-2 mt-0.5" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                <p id="warningText"></p>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div id="outputSection" class="bg-slate-800 rounded-2xl shadow-lg border border-slate-700 overflow-hidden hidden flex-col">
+            <!-- Toolbar -->
+            <div class="bg-slate-850 border-b border-slate-700 px-4 py-3 flex flex-col sm:flex-row items-center justify-between gap-3">
+                <div class="text-sm font-medium text-slate-300 flex items-center">
+                    <span id="repoLabelBranch" class="bg-indigo-900/50 text-indigo-300 border border-indigo-700/50 px-2 py-1 rounded-md mr-2 text-xs">main</span>
+                    <span id="repoLabelName">owner/repo</span>
+                </div>
+                
+                <div class="flex items-center space-x-2 w-full sm:w-auto">
+                    <button id="copyBtn" class="flex-1 sm:flex-none inline-flex items-center justify-center px-3 py-2 border border-slate-600 shadow-sm text-sm font-medium rounded-lg text-slate-200 bg-slate-800 hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 focus:ring-indigo-500 transition-colors">
+                        <svg id="copyIcon" class="mr-2 text-slate-400" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                        <svg id="checkIcon" class="mr-2 text-green-400 hidden" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                        <span id="copyText">Copy</span>
+                    </button>
+                    <button id="downloadTxtBtn" class="flex-1 sm:flex-none inline-flex items-center justify-center px-3 py-2 border border-slate-600 shadow-sm text-sm font-medium rounded-lg text-slate-200 bg-slate-800 hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 focus:ring-indigo-500 transition-colors" title="Download as Text">
+                        <svg class="mr-2 text-slate-400" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><line x1="10" y1="9" x2="8" y2="9"></line></svg>
+                        .txt
+                    </button>
+                    <button id="downloadJsonBtn" class="flex-1 sm:flex-none inline-flex items-center justify-center px-3 py-2 border border-slate-600 shadow-sm text-sm font-medium rounded-lg text-slate-200 bg-slate-800 hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 focus:ring-indigo-500 transition-colors" title="Download as JSON">
+                        <svg class="mr-2 text-slate-400" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8"></polyline><path d="M10 12a1 1 0 0 0-1 1v1a1 1 0 0 1-1 1 1 1 0 0 1 1 1v1a1 1 0 0 0 1 1"></path><path d="M14 18a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1 1 1 0 0 1-1-1v-1a1 1 0 0 0-1-1"></path></svg>
+                        .json
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tree Output Area -->
+            <div class="p-4 md:p-6 bg-slate-950 overflow-x-auto">
+                <pre id="treeOutput" class="text-sm font-mono text-slate-300 whitespace-pre leading-relaxed min-h-[200px]"></pre>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="bg-slate-800 border border-slate-700 rounded-2xl shadow-2xl max-w-md w-full overflow-hidden flex flex-col">
+            <div class="px-6 py-4 border-b border-slate-700 flex justify-between items-center bg-slate-850">
+                <h2 class="text-lg font-semibold text-white flex items-center">
+                    <svg class="mr-2 text-indigo-400" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                    API Settings
+                </h2>
+                <button id="closeSettingsBtn" class="text-slate-400 hover:text-white transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+            </div>
+            <div class="p-6 space-y-4">
+                <p class="text-sm text-slate-400 leading-relaxed">
+                    Set a GitHub Personal Access Token (PAT) to increase your API rate limit from <strong>60</strong> to <strong>5,000</strong> requests per hour. This is recommended for large repositories or frequent use.
+                </p>
+                <div>
+                    <label for="tokenInput" class="block text-sm font-medium text-slate-300 mb-1">GitHub Token</label>
+                    <input type="password" id="tokenInput" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" class="block w-full px-3 py-2 border border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors sm:text-sm bg-slate-900 text-white placeholder-slate-500">
+                </div>
+                <div id="tokenStatus" class="text-sm font-medium"></div>
+            </div>
+            <div class="px-6 py-4 bg-slate-850 border-t border-slate-700 flex justify-end space-x-3">
+                <button id="clearTokenBtn" class="px-4 py-2 border border-slate-600 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-700 hover:text-white transition-colors">
+                    Clear Token
+                </button>
+                <button id="saveTokenBtn" class="px-4 py-2 rounded-lg text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-500 transition-colors shadow-md">
+                    Save Changes
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Application Logic -->
+    <script>
+        // State
+        let currentTreeString = '';
+        let currentTreeJson = null;
+        let currentRepoInfo = null;
+
+        // DOM Elements
+        const repoInput = document.getElementById('repoInput');
+        const generateBtn = document.getElementById('generateBtn');
+        const loaderIcon = document.getElementById('loaderIcon');
+        const btnText = document.getElementById('btnText');
+        
+        const errorBox = document.getElementById('errorBox');
+        const errorText = document.getElementById('errorText');
+        const warningBox = document.getElementById('warningBox');
+        const warningText = document.getElementById('warningText');
+        
+        const outputSection = document.getElementById('outputSection');
+        const treeOutput = document.getElementById('treeOutput');
+        const repoLabelBranch = document.getElementById('repoLabelBranch');
+        const repoLabelName = document.getElementById('repoLabelName');
+        
+        const copyBtn = document.getElementById('copyBtn');
+        const copyIcon = document.getElementById('copyIcon');
+        const checkIcon = document.getElementById('checkIcon');
+        const copyText = document.getElementById('copyText');
+        
+        const downloadTxtBtn = document.getElementById('downloadTxtBtn');
+        const downloadJsonBtn = document.getElementById('downloadJsonBtn');
+
+        // Settings DOM Elements
+        const settingsBtn = document.getElementById('settingsBtn');
+        const settingsModal = document.getElementById('settingsModal');
+        const closeSettingsBtn = document.getElementById('closeSettingsBtn');
+        const tokenInput = document.getElementById('tokenInput');
+        const saveTokenBtn = document.getElementById('saveTokenBtn');
+        const clearTokenBtn = document.getElementById('clearTokenBtn');
+        const tokenStatus = document.getElementById('tokenStatus');
+
+        // Initialize Settings
+        function loadToken() {
+            const token = localStorage.getItem('github_pat');
+            if (token) {
+                tokenInput.value = token;
+                tokenStatus.textContent = '✓ Token is currently active.';
+                tokenStatus.className = 'text-sm font-medium text-green-400 mt-2';
+            } else {
+                tokenInput.value = '';
+                tokenStatus.textContent = 'No token saved.';
+                tokenStatus.className = 'text-sm font-medium text-slate-500 mt-2';
+            }
+        }
+        loadToken();
+
+        // Settings Event Listeners
+        settingsBtn.addEventListener('click', () => {
+            loadToken();
+            settingsModal.classList.remove('hidden');
+            settingsModal.classList.add('flex');
+        });
+
+        closeSettingsBtn.addEventListener('click', () => {
+            settingsModal.classList.add('hidden');
+            settingsModal.classList.remove('flex');
+        });
+
+        // Close modal on outside click
+        settingsModal.addEventListener('click', (e) => {
+            if (e.target === settingsModal) {
+                settingsModal.classList.add('hidden');
+                settingsModal.classList.remove('flex');
+            }
+        });
+
+        saveTokenBtn.addEventListener('click', () => {
+            const val = tokenInput.value.trim();
+            if (val) {
+                localStorage.setItem('github_pat', val);
+                tokenStatus.textContent = '✓ Token saved successfully.';
+                tokenStatus.className = 'text-sm font-medium text-green-400 mt-2';
+                setTimeout(() => {
+                    settingsModal.classList.add('hidden');
+                    settingsModal.classList.remove('flex');
+                }, 1000);
+            } else {
+                localStorage.removeItem('github_pat');
+                loadToken();
+            }
+        });
+
+        clearTokenBtn.addEventListener('click', () => {
+            localStorage.removeItem('github_pat');
+            loadToken();
+        });
+
+        // Helper: Parse GitHub URL
+        const parseGitHubUrl = (input) => {
+            let owner = '';
+            let repo = '';
+            input = input.trim();
+            if (!input) return null;
+
+            try {
+                const urlStr = input.startsWith('http') ? input : `https://${input}`;
+                const url = new URL(urlStr);
+                if (url.hostname === 'github.com' || url.hostname === 'www.github.com') {
+                    const parts = url.pathname.split('/').filter(Boolean);
+                    if (parts.length >= 2) {
+                        return { owner: parts[0], repo: parts[1].replace('.git', '') };
+                    }
+                }
+            } catch (e) {
+                // Fallback to manual split
+            }
+
+            const parts = input.split('/').filter(Boolean);
+            if (parts.length >= 2) {
+                return { owner: parts[0], repo: parts[1].replace('.git', '') };
+            }
+            return null;
+        };
+
+        // Helper: Convert flat paths to nested object
+        const buildNestedTree = (paths) => {
+            const root = {};
+            paths.forEach(item => {
+                if (item.type !== 'blob' && item.type !== 'tree') return;
+                const parts = item.path.split('/');
+                let current = root;
+                for (let i = 0; i < parts.length; i++) {
+                    const part = parts[i];
+                    if (!current[part]) {
+                        current[part] = i === parts.length - 1 && item.type === 'blob' ? null : {};
+                    }
+                    current = current[part];
+                }
+            });
+            return root;
+        };
+
+        // Helper: Generate ASCII string
+        const generateAsciiTree = (node, prefix = '') => {
+            let result = '';
+            const keys = Object.keys(node).sort((a, b) => {
+                const aIsDir = node[a] !== null;
+                const bIsDir = node[b] !== null;
+                if (aIsDir && !bIsDir) return -1;
+                if (!aIsDir && bIsDir) return 1;
+                return a.localeCompare(b);
+            });
+
+            for (let i = 0; i < keys.length; i++) {
+                const key = keys[i];
+                const isLast = i === keys.length - 1;
+                const branch = isLast ? '└── ' : '├── ';
+                
+                result += `${prefix}${branch}${key}\n`;
+
+                if (node[key] !== null) {
+                    const newPrefix = prefix + (isLast ? '    ' : '│   ');
+                    result += generateAsciiTree(node[key], newPrefix);
+                }
+            }
+            return result;
+        };
+
+        // Custom Fetch with Token support
+        const apiFetch = async (url) => {
+            const token = localStorage.getItem('github_pat');
+            const headers = {};
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
+            }
+            const response = await fetch(url, { headers });
+            
+            if (!response.ok) {
+                if (response.status === 404) throw new Error('Repository not found. Check the URL or token permissions if it is a private repo.');
+                if (response.status === 403) throw new Error('API rate limit exceeded. Please set a GitHub Token in settings.');
+                if (response.status === 401) throw new Error('Unauthorized. Your GitHub Token might be invalid or expired.');
+                throw new Error(`API Error: ${response.status} ${response.statusText}`);
+            }
+            return response.json();
+        };
+
+        // Main Fetch Logic
+        const fetchTree = async () => {
+            const input = repoInput.value;
+            const parsed = parseGitHubUrl(input);
+            
+            // Reset UI
+            errorBox.classList.add('hidden');
+            warningBox.classList.add('hidden');
+            outputSection.classList.add('hidden');
+            outputSection.classList.remove('flex');
+            
+            if (!parsed) {
+                errorText.textContent = 'Please enter a valid GitHub repository URL or "owner/repo".';
+                errorBox.classList.remove('hidden');
+                return;
+            }
+
+            const { owner, repo } = parsed;
+
+            // Set Loading state
+            generateBtn.disabled = true;
+            loaderIcon.classList.remove('hidden');
+            btnText.textContent = 'Fetching...';
+
+            try {
+                // 1. Get default branch
+                const repoData = await apiFetch(`https://api.github.com/repos/${owner}/${repo}`);
+                const defaultBranch = repoData.default_branch;
+                currentRepoInfo = { owner, repo, branch: defaultBranch };
+
+                // 2. Get recursive tree
+                const treeData = await apiFetch(`https://api.github.com/repos/${owner}/${repo}/git/trees/${defaultBranch}?recursive=1`);
+                
+                if (treeData.truncated) {
+                    warningText.textContent = 'Repository is too large. The resulting tree is truncated.';
+                    warningBox.classList.remove('hidden');
+                }
+
+                // 3. Process data
+                currentTreeJson = buildNestedTree(treeData.tree);
+                currentTreeString = `${repoData.name}\n${generateAsciiTree(currentTreeJson)}`;
+                
+                // 4. Update UI
+                repoLabelBranch.textContent = defaultBranch;
+                repoLabelName.textContent = `${owner}/${repo}`;
+                treeOutput.textContent = currentTreeString;
+                
+                outputSection.classList.remove('hidden');
+                outputSection.classList.add('flex');
+
+            } catch (err) {
+                errorText.textContent = err.message || 'An error occurred while fetching the repository.';
+                errorBox.classList.remove('hidden');
+            } finally {
+                generateBtn.disabled = false;
+                loaderIcon.classList.add('hidden');
+                btnText.textContent = 'Generate Tree';
+            }
+        };
+
+        // Event Listeners for actions
+        repoInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') fetchTree();
+        });
+        generateBtn.addEventListener('click', fetchTree);
+
+        // Copy functionality (iframe safe)
+        copyBtn.addEventListener('click', () => {
+            if (!currentTreeString) return;
+
+            const textArea = document.createElement("textarea");
+            textArea.value = currentTreeString;
+            textArea.style.position = "fixed";
+            textArea.style.left = "-9999px";
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    copyIcon.classList.add('hidden');
+                    checkIcon.classList.remove('hidden');
+                    copyText.textContent = 'Copied!';
+                    copyBtn.classList.replace('text-slate-200', 'text-green-400');
+                    
+                    setTimeout(() => {
+                        copyIcon.classList.remove('hidden');
+                        checkIcon.classList.add('hidden');
+                        copyText.textContent = 'Copy';
+                        copyBtn.classList.replace('text-green-400', 'text-slate-200');
+                    }, 2000);
+                } else {
+                    throw new Error('Copy command failed');
+                }
+            } catch (err) {
+                alert('Failed to copy. Please select the text manually.');
+            } finally {
+                document.body.removeChild(textArea);
+            }
+        });
+
+        // Download functionality
+        const downloadFile = (content, filename, type) => {
+            const blob = new Blob([content], { type });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        };
+
+        downloadTxtBtn.addEventListener('click', () => {
+            if (!currentTreeString || !currentRepoInfo) return;
+            downloadFile(currentTreeString, `${currentRepoInfo.repo}-tree.txt`, 'text/plain');
+        });
+
+        downloadJsonBtn.addEventListener('click', () => {
+            if (!currentTreeJson || !currentRepoInfo) return;
+            downloadFile(JSON.stringify(currentTreeJson, null, 2), `${currentRepoInfo.repo}-tree.json`, 'application/json');
+        });
+    </script>
+</body>
+</html>
